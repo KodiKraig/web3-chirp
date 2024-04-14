@@ -1,5 +1,9 @@
 import { AuthButton } from "@/app/_components/auth";
-import { PostsSkeleton, PostsView } from "@/app/_components/posts";
+import {
+  CreatePostWizard,
+  PostsSkeleton,
+  PostsView,
+} from "@/app/_components/posts";
 import { Suspense } from "react";
 
 export default async function Home() {
@@ -14,6 +18,8 @@ export default async function Home() {
           <div className="pb-8">
             <AuthButton />
           </div>
+
+          <CreatePostWizard />
         </div>
 
         <div className="flex flex-col">
