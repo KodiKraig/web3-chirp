@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
+import { delay } from "@/utils";
 
 export const postRouter = createTRPCRouter({
   hello: publicProcedure
@@ -11,7 +12,9 @@ export const postRouter = createTRPCRouter({
       };
     }),
 
-  getAll: publicProcedure.query(({ ctx }) => {
+  getAll: publicProcedure.query(async ({ ctx }) => {
+    await delay();
+
     return ctx.db.post.findMany();
   }),
 });

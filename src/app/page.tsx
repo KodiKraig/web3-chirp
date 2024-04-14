@@ -1,20 +1,25 @@
 import { AuthButton } from "@/app/_components/auth";
-import { api } from "@/trpc/server";
+import { PostsSkeleton, PostsView } from "@/app/_components/posts";
+import { Suspense } from "react";
 
 export default async function Home() {
-  const data = await api.post.getAll();
-
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c] text-white">
-      <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16 ">
-        <h1 className="text-5xl font-extrabold tracking-tight sm:text-[5rem]">
-          Web3 <span className="text-[hsl(280,100%,70%)]">Chirp</span>
-        </h1>
-        <AuthButton />
-        <div>
-          {data.map((post) => (
-            <div key={post.id}>{post.content}</div>
-          ))}
+    <main className="flex h-screen justify-center">
+      <div className="h-full w-full border-x border-slate-200 md:max-w-2xl">
+        <div className="flex flex-col items-center border-b">
+          <h1 className="p-8 text-5xl font-extrabold tracking-tight sm:text-[5rem]">
+            Web3 <span className="text-[hsl(280,100%,70%)]">Chirp</span>
+          </h1>
+
+          <div className="pb-8">
+            <AuthButton />
+          </div>
+        </div>
+
+        <div className="flex flex-col">
+          <Suspense fallback={<PostsSkeleton />}>
+            <PostsView />
+          </Suspense>
         </div>
       </div>
     </main>
