@@ -90,7 +90,7 @@ export const publicProcedure = t.procedure;
  * Middleware to enforce that a user is authenticated
  */
 const enforceUserIsAuthed = t.middleware(async (opts) => {
-  if (!opts.ctx.currentUser) {
+  if (!opts.ctx.currentUser || !opts.ctx.currentUser.userId) {
     throw new TRPCError({
       code: "UNAUTHORIZED",
       message: "You must be logged in to do that.",
