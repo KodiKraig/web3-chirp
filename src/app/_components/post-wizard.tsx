@@ -4,21 +4,29 @@ import { ProfileImage } from "@/app/_components/images";
 import { SubmitButton } from "@/app/_components/submit-button";
 import { createNewPost } from "@/server/actions";
 import { useUser } from "@clerk/nextjs";
+import { useEffect } from "react";
 import { useFormState, useFormStatus } from "react-dom";
+import { toast } from "react-hot-toast";
 
 export const CreatePostWizard = () => {
   const [state, formAction] = useFormState(createNewPost, {});
   const { user } = useUser();
 
-  if (!user) {
-    return null;
-  }
-
-  const username = user.username ?? user.web3Wallets?.[0]?.web3Wallet;
+  const username = user?.username ?? user?.web3Wallets?.[0]?.web3Wallet;
 
   const msg = state.errorMsg;
   const isError = state.errorMsg !== undefined;
   const errorColor = isError ? "text-red-300" : "text-green-500";
+
+  useEffect(() => {
+    if (msg) {
+      toast.error(msg, { duration: 5000 });
+    }
+  }, [msg, state.resetKey]);
+
+  if (!user) {
+    return null;
+  }
 
   return (
     <form
