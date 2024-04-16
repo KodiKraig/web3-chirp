@@ -4,6 +4,7 @@
 
 body {
     @apply bg-black text-slate-100;
+    overscroll-behavior: none;
 }
 
 /* Change Autocomplete styles in Chrome*/
