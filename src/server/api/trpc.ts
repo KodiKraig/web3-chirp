@@ -26,12 +26,9 @@ import { auth } from "@clerk/nextjs";
  * @see https://trpc.io/docs/server/context
  */
 export const createTRPCContext = async (opts: { headers: Headers }) => {
-  const user = auth();
-
   return {
     db,
     ...opts,
-    currentUser: user,
   };
 };
 
@@ -90,7 +87,9 @@ export const publicProcedure = t.procedure;
  * Middleware to enforce that a user is authenticated
  */
 const enforceUserIsAuthed = t.middleware(async (opts) => {
-  if (!opts.ctx.currentUser || !opts.ctx.currentUser.userId) {
+  const user = auth();
+
+  if (!user || !user.userId) {
     throw new TRPCError({
       code: "UNAUTHORIZED",
       message: "You must be logged in to do that.",
@@ -100,7 +99,7 @@ const enforceUserIsAuthed = t.middleware(async (opts) => {
   return opts.next({
     ctx: {
       ...opts.ctx,
-      currentUser: opts.ctx.currentUser,
+      currentUser: user,
     },
   });
 });

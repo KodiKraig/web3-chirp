@@ -7,37 +7,11 @@ import {
 } from "@/server/api/trpc";
 import { delay } from "@/utils";
 import { clerkClient } from "@clerk/nextjs";
-import { type User } from "@clerk/nextjs/server";
 import { TRPCError } from "@trpc/server";
-
-export const filterUsernameForClient = (user: User) => {
-  if (user.username) {
-    return user.username;
-  }
-
-  if (user.web3Wallets?.length === 0) {
-    return null;
-  }
-
-  const address = user.web3Wallets?.[0]?.web3Wallet;
-
-  if (!address) {
-    return null;
-  }
-
-  return `${address.slice(0, 6)}...${address.slice(-4)}`;
-};
-
-const filterUserForClient = (user: User) => {
-  return {
-    id: user.id,
-    username: filterUsernameForClient(user),
-    imageUrl: user.imageUrl,
-  };
-};
 
 import { Ratelimit } from "@upstash/ratelimit"; // for deno: see above
 import { Redis } from "@upstash/redis"; // see below for cloudflare and fastly adapters
+import { filterUserForClient } from "@/server/helpers/filters";
 
 // Create a new ratelimiter, that allows 3 requests per 1 minute
 const ratelimit = new Ratelimit({
@@ -52,6 +26,7 @@ const ratelimit = new Ratelimit({
   prefix: "@upstash/ratelimit",
 });
 
+// Post router
 export const postRouter = createTRPCRouter({
   hello: publicProcedure
     .input(z.object({ text: z.string() }))

@@ -14,8 +14,6 @@ export const createNewPost = async (
   state: InitialNewPostState,
   payload: FormData,
 ): Promise<InitialNewPostState> => {
-  console.log(`Creating post`, payload);
-
   try {
     const { post } = await api.post.create({
       content: payload.get("content") as string,
