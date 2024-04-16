@@ -1,11 +1,9 @@
 import type { FC } from "react";
 import { api } from "@/trpc/server";
-import { currentUser } from "@clerk/nextjs";
-import Image from "next/image";
 import type { AppRouterOutput } from "@/server/api/root";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import { filterUsernameForClient } from "@/server/api/routers/post";
+import { ProfileImage } from "@/app/_components/images";
 
 dayjs.extend(relativeTime);
 
@@ -56,41 +54,5 @@ export const PostsSkeleton = () => {
       {postSkeleton}
       {postSkeleton}
     </>
-  );
-};
-
-export const CreatePostWizard = async () => {
-  const user = await currentUser();
-
-  if (!user?.id) {
-    return null;
-  }
-
-  return (
-    <div className="flex w-full gap-3 p-8">
-      <ProfileImage
-        imageUrl={user.imageUrl}
-        username={filterUsernameForClient(user)}
-      />
-      <input
-        placeholder="Type some emojis"
-        className="grow bg-transparent outline-none"
-      />
-    </div>
-  );
-};
-
-export const ProfileImage: FC<{
-  imageUrl: string;
-  username: string | null;
-}> = ({ imageUrl, username }) => {
-  return (
-    <Image
-      src={imageUrl}
-      alt={`@${username} Profile Image`}
-      className="rounded-full"
-      width={50}
-      height={50}
-    />
   );
 };

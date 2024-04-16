@@ -1,9 +1,6 @@
 import { AuthButton } from "@/app/_components/auth";
-import {
-  CreatePostWizard,
-  PostsSkeleton,
-  PostsView,
-} from "@/app/_components/posts";
+import { CreatePostWizard } from "@/app/_components/post-wizard";
+import { PostsSkeleton, PostsView } from "@/app/_components/posts";
 import { Suspense } from "react";
 
 export default async function Home() {
