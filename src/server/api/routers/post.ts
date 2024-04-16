@@ -12,6 +12,7 @@ import { TRPCError } from "@trpc/server";
 import { Ratelimit } from "@upstash/ratelimit"; // for deno: see above
 import { Redis } from "@upstash/redis"; // see below for cloudflare and fastly adapters
 import { filterUserForClient } from "@/server/helpers/filters";
+import { type Post } from "@prisma/client";
 
 // Create a new ratelimiter, that allows 3 requests per 1 minute
 const ratelimit = new Ratelimit({
@@ -25,6 +26,35 @@ const ratelimit = new Ratelimit({
    */
   prefix: "@upstash/ratelimit",
 });
+
+const fillPostsWithAuthors = async (posts: Post[]) => {
+  const users = (
+    await clerkClient.users.getUserList({
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+      userId: posts.map((post) => post.authorId),
+      limit: 100,
+    })
+  ).map(filterUserForClient);
+
+  return posts.map((post) => {
+    const author = users.find((user) => user.id === post.authorId);
+
+    if (!author?.username) {
+      throw new TRPCError({
+        code: "NOT_FOUND",
+        message: "Author for post not found",
+      });
+    }
+
+    return {
+      post,
+      author: {
+        ...author,
+        username: author.username,
+      },
+    };
+  });
+};
 
 // Post router
 export const postRouter = createTRPCRouter({
@@ -44,33 +74,22 @@ export const postRouter = createTRPCRouter({
       orderBy: { createdAt: "desc" },
     });
 
-    const users = (
-      await clerkClient.users.getUserList({
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-        userId: posts.map((post) => post.authorId),
-        limit: 100,
-      })
-    ).map(filterUserForClient);
-
-    return posts.map((post) => {
-      const author = users.find((user) => user.id === post.authorId);
-
-      if (!author?.username) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "Author for post not found",
-        });
-      }
-
-      return {
-        post,
-        author: {
-          ...author,
-          username: author.username,
-        },
-      };
-    });
+    return fillPostsWithAuthors(posts);
   }),
+
+  getPostsByUserId: publicProcedure
+    .input(z.object({ userId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const posts = await ctx.db.post.findMany({
+        where: {
+          authorId: input.userId,
+        },
+        orderBy: { createdAt: "desc" },
+        take: 100,
+      });
+
+      return fillPostsWithAuthors(posts);
+    }),
 
   create: privateProcedure
     .input(

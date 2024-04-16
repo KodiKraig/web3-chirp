@@ -1,3 +1,4 @@
+import { PostsSkeleton, SinglePostView } from "@/app/_components/posts";
 import { api } from "@/trpc/server";
 import { type Metadata } from "next";
 import Image from "next/image";
@@ -20,6 +21,22 @@ export type Props = {
   params: { slug: string };
 };
 
+const ProfileFeed = async (props: { userId: string }) => {
+  const posts = await api.post.getPostsByUserId({ userId: props.userId });
+
+  if (posts.length === 0) {
+    return <div>No posts found</div>;
+  }
+
+  return (
+    <div className="flex flex-col">
+      {posts.map((fullPost) => (
+        <SinglePostView key={fullPost.post.id} {...fullPost} />
+      ))}
+    </div>
+  );
+};
+
 const ProfileView: FC<{ username: string }> = async ({ username }) => {
   const user = await api.profile.getUserByUsername({
     username,
@@ -39,6 +56,9 @@ const ProfileView: FC<{ username: string }> = async ({ username }) => {
       <div className="h-[64px]" />
       <h1 className="p-4 text-2xl font-bold">{`@${user.prettyUsername}`}</h1>
       <div className="w-full border-b border-slate-400" />
+      <Suspense fallback={<PostsSkeleton />}>
+        <ProfileFeed userId={user.id} />
+      </Suspense>
     </>
   );
 };
