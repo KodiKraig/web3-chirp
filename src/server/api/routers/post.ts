@@ -58,12 +58,21 @@ const fillPostsWithAuthors = async (posts: Post[]) => {
 
 // Post router
 export const postRouter = createTRPCRouter({
-  hello: publicProcedure
-    .input(z.object({ text: z.string() }))
-    .query(({ input }) => {
-      return {
-        greeting: `Hello ${input.text}`,
-      };
+  getById: publicProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const posts = await ctx.db.post.findUnique({ where: { id: input.id } });
+
+      if (!posts) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Post not found",
+        });
+      }
+
+      const filled = await fillPostsWithAuthors([posts]);
+
+      return filled[0];
     }),
 
   getAll: publicProcedure.query(async ({ ctx }) => {
