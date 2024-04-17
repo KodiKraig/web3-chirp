@@ -65,10 +65,10 @@ const ProfileView: FC<{ username: string }> = async ({ username }) => {
 
 export default async function Page({ params }: Props) {
   return (
-    <main>
+    <>
       <Suspense fallback={<div>Loading...</div>}>
         <ProfileView username={params.slug} />
       </Suspense>
-    </main>
+    </>
   );
 }
