@@ -5,7 +5,6 @@ import {
   privateProcedure,
   publicProcedure,
 } from "@/server/api/trpc";
-import { delay } from "@/utils";
 import { clerkClient } from "@clerk/nextjs";
 import { TRPCError } from "@trpc/server";
 
@@ -76,8 +75,6 @@ export const postRouter = createTRPCRouter({
     }),
 
   getAll: publicProcedure.query(async ({ ctx }) => {
-    await delay();
-
     const posts = await ctx.db.post.findMany({
       take: 100,
       orderBy: { createdAt: "desc" },
