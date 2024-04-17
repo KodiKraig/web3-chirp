@@ -28,7 +28,7 @@ export const SinglePostView: FC<PostWithUser> = ({ post, author }) => {
       <ProfileImage imageUrl={author.imageUrl} username={author.username} />
       <div className="flex flex-col">
         <div className="flex">
-          <Link href={author.username}>
+          <Link href={`/${author.username}`}>
             <span className="align-text-bottom text-slate-300">{`@${author.prettyUsername}`}</span>
           </Link>
           <div className="px-2">·</div>
